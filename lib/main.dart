@@ -5,7 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +64,15 @@ class CandidatesScreen extends StatelessWidget {
   }
 }
 
-class CandidateCard extends StatelessWidget {
+class CandidateCard extends StatefulWidget {
   final String candidateName;
   final String candidateDesignation;
   final String? profileImage;
   final String? coverImage;
   final VoidCallback onTap;
 
-  const CandidateCard({super.key,
+  const CandidateCard({
+    super.key,
     required this.candidateName,
     required this.candidateDesignation,
     required this.profileImage,
@@ -80,49 +81,60 @@ class CandidateCard extends StatelessWidget {
   });
 
   @override
+  _CandidateCardState createState() => _CandidateCardState();
+}
+
+class _CandidateCardState extends State<CandidateCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 3,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: coverImage != null ? AssetImage(coverImage!) : const AssetImage('assets/default_cover.jpg'),
-                      fit: BoxFit.cover,
+    return MouseRegion(
+      onEnter: (event) => setState(() => _isHovered = true),
+      onExit: (event) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Card(
+          elevation: _isHovered ? 15 : 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: widget.coverImage != null ? AssetImage(widget.coverImage!) : const AssetImage('assets/cover.jpg'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundImage: profileImage != null ? AssetImage(profileImage!) : const AssetImage('assets/default_profile.jpg'),
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: widget.profileImage != null ? AssetImage(widget.profileImage!) : const AssetImage('assets/profile.jpg'),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      candidateName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(candidateDesignation),
-                  ],
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.candidateName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(widget.candidateDesignation),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -138,7 +150,8 @@ class CandidateDetailScreen extends StatelessWidget {
   final String profileImage;
   final String coverImage;
 
-  const CandidateDetailScreen({super.key,
+  const CandidateDetailScreen({
+    Key? key,
     required this.candidateName,
     required this.about,
     required this.experience,
@@ -146,7 +159,7 @@ class CandidateDetailScreen extends StatelessWidget {
     required this.certifications,
     required this.profileImage,
     required this.coverImage,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
