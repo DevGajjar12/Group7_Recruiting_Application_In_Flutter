@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/post_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,6 +60,17 @@ class CandidatesScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to PostScreen when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PostScreen()),
+          );
+        },
+        child: const Icon(Icons.post_add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
@@ -252,6 +264,8 @@ class CandidateDetailScreen extends StatelessWidget {
   }
 }
 
+
+
 List<Map<String, String?>> candidateProfiles = [
   {
     'name': 'Devkumar Gajjar',
@@ -259,7 +273,7 @@ List<Map<String, String?>> candidateProfiles = [
     'profileImage': 'assets/profile2.jpg',
     'coverImage': 'assets/cover2.png',
     'about': 'About Devkumar Gajjar: To make best use of my skills of Data Analysis & Machine Learning and contribute my best potential to the organization’s growth whenever given opportunity.',
-    'experience': 'Data Analyst at Finestar Diamond (Jan 2022 - Apr 2022)',
+    'experience': 'Data Analyst at Finestar Diamond (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Information Technology',
     'certifications': 'Google data analytics professional certificate',
   },
@@ -269,7 +283,7 @@ List<Map<String, String?>> candidateProfiles = [
     'profileImage': 'assets/profile1.png',
     'coverImage': 'assets/cover1.jpg',
     'about': 'About Sachin: To make best use of my skills of Frontend & Backend to contribute my best potential to the organization’s growth whenever given opportunity.',
-    'experience': 'Full-Stack at Infosys (Jan 2022 - Apr 2022)',
+    'experience': 'Full-Stack at Infosys (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Full-stack Developer professional certificate',
   },
@@ -279,7 +293,7 @@ List<Map<String, String?>> candidateProfiles = [
     'profileImage': 'assets/profile0.png',
     'coverImage': 'assets/cover0.jpg',
     'about': 'About Krushang: To make best use of my skills of Graphic Designer to contribute my best potential to the organization’s growth whenever given opportunity.',
-    'experience': 'Graphic Designer at TCS (Jan 2022 - Apr 2022)',
+    'experience': 'Graphic Designer at TCS (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Graphic Designer professional certificate',
   },
@@ -289,7 +303,7 @@ List<Map<String, String?>> candidateProfiles = [
     'profileImage': 'assets/profile3.png',
     'coverImage': 'assets/cover3.jpg',
     'about': 'About Sabrup: To make best use of my skills of Mern-Stack Developer to contribute my best potential to the organization’s growth whenever given opportunity.',
-    'experience': 'Mern-Stack at iNuron (Jan 2022 - Apr 2022)',
+    'experience': 'Mern-Stack at iNuron (Jan 2021 - Apr 2022)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Mern-Stack Developer professional certificate',
   },
