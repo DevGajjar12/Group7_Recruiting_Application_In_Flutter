@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:recruiting_application/prefs_manager.dart';
+import 'package:recruiting_application/screens/job_details_screen.dart';
+
 import 'screens/post_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -61,16 +65,28 @@ class CandidatesScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to PostScreen when the button is pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PostScreen()),
-          );
-        },
-        child: const Icon(Icons.post_add),
-        backgroundColor: Colors.blue,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const JobDetailsScreen()));
+            },
+            backgroundColor: Colors.blue,
+            child: const Icon(Icons.work),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PostScreen()),
+              );
+            },
+            backgroundColor: Colors.blue,
+            child: const Icon(Icons.post_add),
+          ),
+        ],
       ),
     );
   }
@@ -153,7 +169,7 @@ class _CandidateCardState extends State<CandidateCard> {
   }
 }
 
-class CandidateDetailScreen extends StatelessWidget {
+class CandidateDetailScreen extends StatefulWidget {
   final String candidateName;
   final String about;
   final String experience;
@@ -174,6 +190,29 @@ class CandidateDetailScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CandidateDetailScreen> createState() => _CandidateDetailScreenState();
+}
+
+class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
+  bool isApplied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      List<JobApply> data = await PrefsRepo().getApply();
+      for (var element in data) {
+        if (element.name == widget.candidateName) {
+          isApplied = element.apply;
+          print("Matched:------> ${isApplied}");
+          setState(() {});
+          break;
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -189,7 +228,7 @@ class CandidateDetailScreen extends StatelessWidget {
                 height: 250,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(coverImage),
+                    image: AssetImage(widget.coverImage),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -198,13 +237,13 @@ class CandidateDetailScreen extends StatelessWidget {
               Center(
                 child: CircleAvatar(
                   radius: 80,
-                  backgroundImage: AssetImage(profileImage),
+                  backgroundImage: AssetImage(widget.profileImage),
                 ),
               ),
               const SizedBox(height: 20),
               Center(
                 child: Text(
-                  candidateName,
+                  widget.candidateName,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -219,7 +258,7 @@ class CandidateDetailScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  about,
+                  widget.about,
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
@@ -231,7 +270,7 @@ class CandidateDetailScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: Text(experience),
+                title: Text(widget.experience),
                 leading: const Icon(Icons.work),
               ),
               const Padding(
@@ -242,7 +281,7 @@ class CandidateDetailScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: Text(education),
+                title: Text(widget.education),
                 leading: const Icon(Icons.school),
               ),
               const Padding(
@@ -253,9 +292,47 @@ class CandidateDetailScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: Text(certifications),
+                title: Text(widget.certifications),
                 leading: const Icon(Icons.card_membership),
               ),
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: InkWell(
+                  onTap: () async {
+                    isApplied = !isApplied;
+                    setState(() {});
+                    await PrefsRepo().setApply(data: JobApply(apply: isApplied, name: widget.candidateName));
+                  },
+                  child: Ink(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Center(
+                        child: Text(
+                          isApplied ? 'Applied' : 'Apply now',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: ElevatedButton(
+              //     onPressed: () async {
+              //       isApplied = !isApplied;
+              //       setState(() {});
+              //       print("widget.candidateName:----> ${widget.candidateName}");
+              //       await PrefsRepo().setApply(data: JobApply(apply: isApplied, name: widget.candidateName));
+              //     },
+              //     child: Text(isApplied ? 'Applied' : "Apply Now"),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -264,15 +341,14 @@ class CandidateDetailScreen extends StatelessWidget {
   }
 }
 
-
-
 List<Map<String, String?>> candidateProfiles = [
   {
     'name': 'Devkumar Gajjar',
     'designation': 'Data Analyst',
     'profileImage': 'assets/profile2.jpg',
     'coverImage': 'assets/cover2.png',
-    'about': 'About Devkumar Gajjar: To make best use of my skills of Data Analysis & Machine Learning and contribute my best potential to the organization’s growth whenever given opportunity.',
+    'about':
+        'About Devkumar Gajjar: To make best use of my skills of Data Analysis & Machine Learning and contribute my best potential to the organization’s growth whenever given opportunity.',
     'experience': 'Data Analyst at Finestar Diamond (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Information Technology',
     'certifications': 'Google data analytics professional certificate',
@@ -282,7 +358,8 @@ List<Map<String, String?>> candidateProfiles = [
     'designation': 'Full-Stack Developer',
     'profileImage': 'assets/profile1.png',
     'coverImage': 'assets/cover1.jpg',
-    'about': 'About Sachin: To make best use of my skills of Frontend & Backend to contribute my best potential to the organization’s growth whenever given opportunity.',
+    'about':
+        'About Sachin: To make best use of my skills of Frontend & Backend to contribute my best potential to the organization’s growth whenever given opportunity.',
     'experience': 'Full-Stack at Infosys (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Full-stack Developer professional certificate',
@@ -292,7 +369,8 @@ List<Map<String, String?>> candidateProfiles = [
     'designation': 'Graphic Designer',
     'profileImage': 'assets/profile0.png',
     'coverImage': 'assets/cover0.jpg',
-    'about': 'About Krushang: To make best use of my skills of Graphic Designer to contribute my best potential to the organization’s growth whenever given opportunity.',
+    'about':
+        'About Krushang: To make best use of my skills of Graphic Designer to contribute my best potential to the organization’s growth whenever given opportunity.',
     'experience': 'Graphic Designer at TCS (Jan 2022 - Apr 2023)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Graphic Designer professional certificate',
@@ -302,7 +380,8 @@ List<Map<String, String?>> candidateProfiles = [
     'designation': 'Mern-Stack Developer',
     'profileImage': 'assets/profile3.png',
     'coverImage': 'assets/cover3.jpg',
-    'about': 'About Sabrup: To make best use of my skills of Mern-Stack Developer to contribute my best potential to the organization’s growth whenever given opportunity.',
+    'about':
+        'About Sabrup: To make best use of my skills of Mern-Stack Developer to contribute my best potential to the organization’s growth whenever given opportunity.',
     'experience': 'Mern-Stack at iNuron (Jan 2021 - Apr 2022)',
     'education': 'Bachelors degree in Computer Science',
     'certifications': 'IBM Mern-Stack Developer professional certificate',
