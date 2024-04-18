@@ -45,7 +45,14 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Job Details')),
+      appBar: AppBar(title: const Text('Job Details',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+      backgroundColor: Colors.blueGrey,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

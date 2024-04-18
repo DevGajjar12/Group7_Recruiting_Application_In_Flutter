@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:recruiting_application/prefs_manager.dart';
 import 'package:recruiting_application/screens/job_details_screen.dart';
-
+import 'package:flutter/animation.dart';
+import 'package:flutter/scheduler.dart';
 import 'screens/post_screen.dart';
 
 void main() {
@@ -15,31 +16,180 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: CandidatesScreen(),
+      // home: CandidatesScreen(),
+      home: MyHomePage(),
     );
   }
 }
+class MyHomePage extends StatefulWidget{
+  const MyHomePage({super.key});
 
-class CandidatesScreen extends StatelessWidget {
-  const CandidatesScreen({super.key});
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
+  late Animation<double> _homeScreenAnimation;
+  late AnimationController _homeScreenController;
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize home screen entrance animation
+    _homeScreenController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _homeScreenAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _homeScreenController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _homeScreenController.forward();
+  }
+
+  @override
+  void dispose() {
+    _homeScreenController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Candidates'),
+      // appBar: AppBar(
+      //   title: const Text(
+      //     'Welcome',
+      //     style: TextStyle(
+      //       fontSize: 24,
+      //       fontWeight: FontWeight.w900,
+      //     ),
+      //   ),
+      //   backgroundColor: Colors.blueGrey,
+      // ),
+      body: Center(
+        child: FadeTransition(
+          opacity: _homeScreenAnimation,
+          child: Stack(
+            fit: StackFit.expand, // Ensure the Stack fills the entire screen
+            children: [
+              Image(
+                image: AssetImage('assets/cover3.jpg'),
+                fit: BoxFit.cover, // Ensure the image covers the entire screen
+              ),
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5), // Add a semi-transparent overlay
+                ),
+              ),
+              Positioned.fill(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Discover Your Dream Job Here',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Explore all the most exciting jobs roles based on your interest',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w400,
+                        ),
+
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CandidatesScreen()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          textStyle: TextStyle(fontSize: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          elevation: 3,
+                        ),
+                        child: Text('Get Started'),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
+
+
+
+    );
+
+  }
+
+}
+
+class CandidatesScreen extends StatefulWidget {
+  const CandidatesScreen({Key? key});
+
+  @override
+  _CandidatesScreenState createState() => _CandidatesScreenState();
+}
+  class _CandidatesScreenState extends State<CandidatesScreen> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Candidates',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        backgroundColor: Colors.blueGrey,
+
+      ),
+      backgroundColor: Colors.grey[200],
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
         ),
         itemCount: candidateProfiles.length,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
+
             child: CandidateCard(
               candidateName: candidateProfiles[index]['name'] ?? '',
               candidateDesignation: candidateProfiles[index]['designation'] ?? '',
@@ -65,26 +215,39 @@ class CandidatesScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: Row(
+      floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const JobDetailsScreen()));
-            },
-            backgroundColor: Colors.blue,
-            child: const Icon(Icons.work),
+          ScaleTransition(
+            scale: Tween<double>(begin: 1, end: 1.5).animate(CurvedAnimation(
+              parent: _animationController, // You need to declare this AnimationController
+              curve: Interval(0.0, 0.5, curve: Curves.easeInOut),
+            )),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const JobDetailsScreen()));
+              },
+              backgroundColor: Colors.blueGrey,
+              child: const Icon(Icons.work),
+            ),
           ),
-          const SizedBox(width: 10),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PostScreen()),
-              );
-            },
-            backgroundColor: Colors.blue,
-            child: const Icon(Icons.post_add),
+          const SizedBox(height: 10),
+          ScaleTransition(
+            scale: Tween<double>(begin: 1, end: 1.5).animate(CurvedAnimation(
+              parent: _animationController, // You need to declare this AnimationController
+              curve: Interval(0.5, 1.0, curve: Curves.easeInOut),
+            )),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PostScreen()),
+                );
+              },
+              backgroundColor: Colors.blueGrey,
+              child: const Icon(Icons.post_add),
+            ),
           ),
         ],
       ),
@@ -118,12 +281,26 @@ class _CandidateCardState extends State<CandidateCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (event) => setState(() => _isHovered = true),
-      onExit: (event) => setState(() => _isHovered = false),
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
-        child: Card(
-          elevation: _isHovered ? 15 : 5,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: _isHovered ? Colors.white : Colors.grey[300],
+            boxShadow: _isHovered
+                ? [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ]
+                : [],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -131,17 +308,27 @@ class _CandidateCardState extends State<CandidateCard> {
                 flex: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: widget.coverImage != null ? AssetImage(widget.coverImage!) : const AssetImage('assets/cover.jpg'),
-                        fit: BoxFit.cover,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                          image: DecorationImage(
+                            image: widget.coverImage != null ? AssetImage(widget.coverImage!) : const AssetImage('assets/cover.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: widget.profileImage != null ? AssetImage(widget.profileImage!) : const AssetImage('assets/profile.jpg'),
-                    ),
+                      AnimatedOpacity(
+                        duration: Duration(milliseconds: 300),
+                        opacity: _isHovered ? 1 : 0,
+                        child: CircleAvatar(
+                          radius: 90,
+                          backgroundImage: widget.profileImage != null ? AssetImage(widget.profileImage!) : const AssetImage('assets/profile.jpg'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -216,7 +403,13 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Candidate Profile'),
+        title: const Text('Candidate Profile',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blueGrey,
       ),
       body: Container(
         color: Colors.grey.shade200,
@@ -244,7 +437,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
               Center(
                 child: Text(
                   widget.candidateName,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
