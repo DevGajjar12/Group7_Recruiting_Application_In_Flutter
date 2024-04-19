@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefsRepo {
@@ -8,14 +7,11 @@ class PrefsRepo {
   Future<void> setApply({required JobApply data}) async {
     List<JobApply> applyList = await getApply();
 
-    for (int i = 0; i < applyList.length; i++) {
-      if (applyList[i].name == data.name) {
-        applyList.removeAt(i);
-      }
-    }
+    // Remove existing entry with the same name
+    applyList.removeWhere((job) => job.name == data.name);
 
+    // Add the new entry
     applyList.add(JobApply(apply: data.apply, name: data.name));
-    print("SET:-----> ${data.apply}");
 
     List<String> jsonStringList = applyList.map((result) {
       return jsonEncode(result.toJson());
@@ -25,6 +21,23 @@ class PrefsRepo {
     await prefs.setStringList(apply, jsonStringList);
   }
 
+  Future<void> removeApply(String name) async {
+    List<JobApply> applyList = await getApply();
+    applyList.removeWhere((job) => job.name == name);
+
+    List<String> jsonStringList = applyList.map((result) {
+      return jsonEncode(result.toJson());
+    }).toList();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(apply, jsonStringList);
+  }
+
+  Future<void> clearAllApplied() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(apply);
+  }
+
   Future<List<JobApply>> getApply() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? jsonStringList = prefs.getStringList(apply);
@@ -32,12 +45,12 @@ class PrefsRepo {
     if (jsonStringList == null) {
       return [];
     }
+
     List<JobApply> applyList = jsonStringList.map((jsonString) {
       Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-      print("GET:-----> ${jsonMap}");
-
       return JobApply.fromJson(jsonMap);
     }).toList();
+
     return applyList;
   }
 }
@@ -54,10 +67,5 @@ class JobApply {
 
   Map<String, dynamic> toJson() {
     return {'apply': apply, 'name': name};
-  }
-
-  @override
-  String toString() {
-    return 'JobApply{apply: $apply, name: $name}';
   }
 }

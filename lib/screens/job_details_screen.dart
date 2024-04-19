@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:recruiting_application/prefs_manager.dart';
 
+import 'job_applications_screen.dart';
+
 class JobDetailsScreen extends StatefulWidget {
   const JobDetailsScreen({super.key});
 
@@ -42,16 +44,35 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
     });
   }
 
+  void _addToApplications(int index) async {
+    setState(() {
+      jobDetails[index]['apply'] = true;
+    });
+
+    // Navigate to the job applications screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => JobApplicationsScreen()),
+    );
+
+    await PrefsRepo().setApply(
+      data: JobApply(apply: true, name: jobDetails[index]['name'] + jobDetails[index]['destination']),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Job Details',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w900,
+      appBar: AppBar(
+        title: const Text(
+          'Job Details',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+          ),
         ),
-      ),
-      backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.blueGrey,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -74,12 +95,11 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           InkWell(
-                            onTap: () async {
-                              jobDetails[i]['apply'] = !jobDetails[i]['apply'];
-                              setState(() {});
-                              await PrefsRepo().setApply(
-                                data: JobApply(apply: jobDetails[i]['apply'], name: jobDetails[i]['name'] + jobDetails[i]['destination']),
-                              );
+                            onTap: () {
+                              setState(() {
+                                jobDetails[i]['apply'] = !jobDetails[i]['apply'];
+                              });
+                              _addToApplications(i);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

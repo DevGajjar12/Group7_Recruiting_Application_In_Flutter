@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:recruiting_application/prefs_manager.dart';
+import 'package:recruiting_application/screens/cover_page.dart';
 import 'package:recruiting_application/screens/job_details_screen.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/scheduler.dart';
 import 'screens/post_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Clear all applied jobs when the application starts up
+  await PrefsRepo().clearAllApplied();
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -248,12 +254,31 @@ class CandidatesScreen extends StatefulWidget {
               backgroundColor: Colors.blueGrey,
               child: const Icon(Icons.post_add),
             ),
+          ),SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CoverPage()), // Replace CoverPage with the actual name of your cover page class
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blueGrey,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              textStyle: TextStyle(fontSize: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              elevation: 3,
+            ),
+            child: Text('Cover Page'),
           ),
         ],
       ),
     );
   }
-}
+  }
 
 class CandidateCard extends StatefulWidget {
   final String candidateName;
@@ -490,11 +515,12 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(15),
-                child: InkWell(
-                  onTap: () async {
-                    isApplied = !isApplied;
-                    setState(() {});
-                    await PrefsRepo().setApply(data: JobApply(apply: isApplied, name: widget.candidateName));
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => JobDetailsScreen()), // Replace JobDetailsScreen with the actual name of your job details screen class
+                    );
                   },
                   child: Ink(
                     child: Container(
@@ -506,7 +532,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          isApplied ? 'Applied' : 'Apply now',
+                          'Job Listing',
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -514,6 +540,7 @@ class _CandidateDetailScreenState extends State<CandidateDetailScreen> {
                   ),
                 ),
               ),
+
               // Padding(
               //   padding: const EdgeInsets.all(8.0),
               //   child: ElevatedButton(
