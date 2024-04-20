@@ -95,6 +95,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
+                        'The Carrer Craft',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
                         'Discover Your Dream Job Here',
                         style: TextStyle(
                           color: Colors.white,
